@@ -7,4 +7,6 @@ class ProdConfig(Config):
 
 
 class DevConfig(Config):
-    DEBUG = True
+    debug = True
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root@localhost/jafary"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
