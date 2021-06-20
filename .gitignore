@@ -12,3 +12,5 @@ secrets.txt
 .idea
 env
 venv
+.DS_Store
+.vscode/settings.json
