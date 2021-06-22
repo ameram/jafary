@@ -3,10 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref
 from config import DevConfig
 from datetime import datetime
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config.from_object(DevConfig)
 db = SQLAlchemy(app)
+migrate = Migrate(app=app, db=db, directory='migrations')
 
 
 @app.route('/')
@@ -73,18 +75,22 @@ class Subgroup(db.Model):
         self.title = title
 
 
-# class RequestState(db.Model):
+# class State(db.Model):
 #     id = db.Column(db.Integer(), primary_key=True)
 #     title = db.Column(db.String(255))
-#     requests = db.relationship(
-#         'Request', backref='requeststate', lazy='dynamic')
+#     requests = db.relationship('Request', backref='state')
+
+#     def __init__(self, name):
+#         self.name = name
 
 
-# class RequestType(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     title = db.Column(db.String(255))
-#     requests = db.relationship(
-#         'Request', backref='requesttype', lazy='dynamic')
+class Type(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    requests = db.relationship('Request', backref='type', lazy='dynamic')
+
+    def __init__(self, name):
+        self.name = name
 
 
 class Request(db.Model):
@@ -103,8 +109,8 @@ class Request(db.Model):
     payment_foreignkey = db.Column(db.Integer(), db.ForeignKey('payment.id'))
     responds = db.relationship('Respond', backref='request', lazy='dynamic')
 
-    # state = db.Column(db.Integer(), db.ForeignKey('requeststate.id'))
-    # type = db.Column(db.Integer(), db.ForeignKey('requesttype.id'))
+    type_foreignkey = db.Column(db.Integer, db.ForeignKey('type.id'))
+    # state_foreignkey = db.Column(db.Integer(), db.ForeignKey('state.id'))
 
     def __init__(self, title):
         self.title = title
