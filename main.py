@@ -32,6 +32,8 @@ class User(db.Model):
     requests = db.relationship('Request', backref='user', lazy='dynamic')
     payments = db.relationship('Payment', backref='user', lazy='dynamic')
     responds = db.relationship('Respond', backref='user', lazy='dynamic')
+    schedule_foreignkey = db.relationship('Schedule', backref='user')
+
 
     def __init__(self, username):
         self.username = username
@@ -50,6 +52,8 @@ class Counselor(db.Model):
     requests = db.relationship('Request', backref='counselor', lazy='dynamic')
     payments = db.relationship('Payment', backref='counselor', lazy='dynamic')
     responds = db.relationship('Respond', backref='counselor', lazy='dynamic')
+    schedule_foreignkey = db.relationship('Schedule', backref='counselor')
+
 
     def __init__(self, username):
         self.username = username
@@ -75,15 +79,6 @@ class Subgroup(db.Model):
         self.title = title
 
 
-# class State(db.Model):
-#     id = db.Column(db.Integer(), primary_key=True)
-#     title = db.Column(db.String(255))
-#     requests = db.relationship('Request', backref='state')
-
-#     def __init__(self, name):
-#         self.name = name
-
-
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
@@ -91,6 +86,14 @@ class Type(db.Model):
 
     def __init__(self, name):
         self.name = name
+
+
+class State(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    requests = db.relationship('Request', backref='state')
+    schedule_foreignkey = db.relationship('Schedule', backref='state')
+
 
 
 class Request(db.Model):
@@ -108,9 +111,11 @@ class Request(db.Model):
     subgroup_foreignkey = db.Column(db.Integer(), db.ForeignKey('subgroup.id'))
     payment_foreignkey = db.Column(db.Integer(), db.ForeignKey('payment.id'))
     responds = db.relationship('Respond', backref='request', lazy='dynamic')
-
-    type_foreignkey = db.Column(db.Integer, db.ForeignKey('type.id'))
-    # state_foreignkey = db.Column(db.Integer(), db.ForeignKey('state.id'))
+    state_foreignkey = db.Column(
+        db.Integer, db.ForeignKey('state.id'), nullable=True)
+    type_foreignkey = db.Column(
+        db.Integer, db.ForeignKey('type.id'), nullable=True)
+    schedule_foreignkey = db.relationship('Schedule', backref='request')
 
     def __init__(self, title):
         self.title = title
@@ -141,3 +146,15 @@ class Respond(db.Model):
         'request.id'), nullable=False)
     payment_foreignkey = db.Column(
         db.Integer(), db.ForeignKey('payment.id'), nullable=True)
+
+
+class Schedule(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    s_time = db.Column(db.DateTime)
+    user_foreignkey = db.Column(
+        db.Integer, db.ForeignKey('user.id'), nullable=False)
+    counselor_foreignkey = db.Column(
+        db.Integer, db.ForeignKey('counselor.id'))
+    request_foreignkey = db.Column(db.Integer, db.ForeignKey(
+        'request.id'), nullable=False)
+    state_foreignkey = db.Column(db.Integer, db.ForeignKey('state.id'))
