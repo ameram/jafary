@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block title %}{{ user.username }}'s Requests{% endblock %}
+{% block leftbody %}
+<div class="row">
+    <div class="col bg-light">
+        <h1 class="text-center">Requests By {{ user.username }}</h1>
+    </div>
+</div>
+{{ macros.render_requests(requests, pagination=False) }}
+
+{% endblock %}

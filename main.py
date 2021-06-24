@@ -1,23 +1,30 @@
-from flask import Flask
+
+# TODO: add str() to all classes
+
+from flask import Flask, render_template, redirect, url_for, abort, flash, request, \
+    current_app, make_response
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import backref
+from sqlalchemy.orm import backref, relationship
+from sqlalchemy import func
+from sqlalchemy import select
+from sqlalchemy import table, column, MetaData
 from config import DevConfig
 from datetime import datetime
 from flask_migrate import Migrate
 
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+
 app = Flask(__name__)
 app.config.from_object(DevConfig)
-db = SQLAlchemy(app)
-migrate = Migrate(app=app, db=db, directory='migrations')
-
-
-@app.route('/')
-def home():
-    return '<h1>Hello World!</h1>'
-
-
-if __name__ == '__main__':
-    app.run()
+metadata = MetaData(naming_convention=convention)
+db = SQLAlchemy(app, metadata=metadata)
+migrate = Migrate(app, db, render_as_batch=True)
 
 
 class User(db.Model):
@@ -33,7 +40,6 @@ class User(db.Model):
     payments = db.relationship('Payment', backref='user', lazy='dynamic')
     responds = db.relationship('Respond', backref='user', lazy='dynamic')
     schedule_foreignkey = db.relationship('Schedule', backref='user')
-
 
     def __init__(self, username):
         self.username = username
@@ -53,7 +59,6 @@ class Counselor(db.Model):
     payments = db.relationship('Payment', backref='counselor', lazy='dynamic')
     responds = db.relationship('Respond', backref='counselor', lazy='dynamic')
     schedule_foreignkey = db.relationship('Schedule', backref='counselor')
-
 
     def __init__(self, username):
         self.username = username
@@ -93,7 +98,6 @@ class State(db.Model):
     name = db.Column(db.String(255))
     requests = db.relationship('Request', backref='state')
     schedule_foreignkey = db.relationship('Schedule', backref='state')
-
 
 
 class Request(db.Model):
@@ -139,7 +143,7 @@ class Respond(db.Model):
     content = db.Column(db.Text)
 
     user_foreignkey = db.Column(
-        db.Integer(), db.ForeignKey('user.id'), nullable=False)
+        db.Integer(), db.ForeignKey('user.id'), nullable=True)
     counselor_foreignkey = db.Column(
         db.Integer(), db.ForeignKey('counselor.id'))
     request_foreignkey = db.Column(db.Integer(), db.ForeignKey(
@@ -158,3 +162,56 @@ class Schedule(db.Model):
     request_foreignkey = db.Column(db.Integer, db.ForeignKey(
         'request.id'), nullable=False)
     state_foreignkey = db.Column(db.Integer, db.ForeignKey('state.id'))
+
+# View code
+
+
+def sidebar_data():
+    recent = Request.query.filter_by(
+        type_foreignkey='2').order_by(Request.pub_date.desc()).limit(5).all()
+
+    return recent
+
+
+@app.route('/')
+@app.route('/<int:page>')
+def home(page=1):
+    requests = Request.query.order_by(Request.pub_date.desc()).paginate(
+        page, app.config.get('POSTS_PER_PAGE', 10), False)
+    recent = sidebar_data()
+
+    return render_template('home.html', requests=requests, recent=recent)
+
+
+@app.route('/group/<string:group_title>')
+def requests_by_group(group_title):
+    group = Group.query.filter_by(title=group_title).first_or_404()
+    requests = group.requests.order_by(Request.pub_date.desc()).all()
+    recent = sidebar_data()
+
+    return render_template('group.html', requests=requests, group=group, recent=recent)
+
+
+@app.route('/request/<int:request_id>', methods=('GET', 'POST'))
+def request(request_id):
+    request = Request.query.get_or_404(request_id)
+    if (request.group is not None):
+        group = request.group.title
+    else:
+        group = 'Unknown'
+    recent = sidebar_data()
+
+    return render_template('request.html', request=request, group=group, recent=recent,)
+
+
+@app.route('/user/<string:username>')
+def requests_by_user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    requests = user.requests.order_by(
+        Request.pub_date.desc()).all()
+    recent = sidebar_data()
+    return render_template('user.html', user=user, requests=requests, recent=recent)
+
+
+if __name__ == '__main__':
+    app.run()

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ request.title }}{% endblock %}
+{% block leftbody %}
+<div class="p-4 shadow-sm">
+    <div class="row">
+        <div class="col">
+            <h1>{{ request.title }}</h1>
+        </div>
+    </div>
+    <div class="row shadow-sm">
+        <div class="col-lg-6">
+            <p>Written By <a href="{{ url_for('requests_by_user', username=request.user.username) }}">{{ request.user.username }}</a> on {{ request.pub_date.strftime('%Y-%m-%d') }}</p>
+        </div>
+        <div class="col-lg-6">
+            <p class="text-right"> Group: <a href="{{ url_for('requests_by_group', group_title=request.group.title) }}">{{ request.group.title }}</a></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            {{ request.content | safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}

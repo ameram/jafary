@@ -1,0 +1,12 @@
+<div class="row">
+    <div class="col">
+        <h5>Recent Requests</h5>
+    </div>
+</div>
+<ul class="list-group">
+    {% for ro in recent %}
+    <li class="list-group-item">
+        <a href="{{ url_for('request', request_id=ro.id) }}">{{ ro.title }}!!!</a>
+    </li>
+    {% endfor %}
+</ul>

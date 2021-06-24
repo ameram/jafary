@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+{% block title %}Home{% endblock %}
+
+{% block leftbody %}
+{{ macros.render_requests (requests) }}
+{{ macros.render_pagination(requests, 'home') }}
+{% endblock %}
