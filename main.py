@@ -289,6 +289,11 @@ def signup():
         new_user.phone_number = user_form.phonenumber.data
         new_user.email = user_form.email.data
         new_user.age = user_form.age.data
+        v = User.query.filter_by(username=new_user.username).first()
+        if v is None:
+            flash('Username is taken', 'error')
+            db.session.rollback()
+            return redirect(url_for('signup'))
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -301,6 +306,10 @@ def signup():
         return redirect(url_for('requests_by_user', username=new_user.username))
 
     return render_template('signup.html', form=user_form)
+
+@app.errorhandler(404)
+def page_not_load(error):
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':
