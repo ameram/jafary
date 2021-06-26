@@ -1,6 +1,7 @@
 
 # TODO: add str() to all classes
 
+from flask_wtf import FlaskForm as Form
 from flask import Flask, render_template, redirect, url_for, abort, flash, request, \
     current_app, make_response
 from flask_sqlalchemy import SQLAlchemy
@@ -11,6 +12,9 @@ from sqlalchemy import table, column, MetaData
 from config import DevConfig
 from datetime import datetime
 from flask_migrate import Migrate
+from flask_wtf import FlaskForm as Form
+from wtforms import StringField, TextAreaField, SelectField, PasswordField, IntegerField, FloatField, DateTimeField
+from wtforms.validators import DataRequired, Length, NumberRange, number_range
 
 convention = {
     "ix": 'ix_%(column_0_label)s',
@@ -41,9 +45,6 @@ class User(db.Model):
     responds = db.relationship('Respond', backref='user', lazy='dynamic')
     schedule_foreignkey = db.relationship('Schedule', backref='user')
 
-    def __init__(self, username):
-        self.username = username
-
 
 class Counselor(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -60,18 +61,12 @@ class Counselor(db.Model):
     responds = db.relationship('Respond', backref='counselor', lazy='dynamic')
     schedule_foreignkey = db.relationship('Schedule', backref='counselor')
 
-    def __init__(self, username):
-        self.username = username
-
 
 class Group(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(255))
     subgroups = db.relationship('Subgroup', backref='group', lazy='dynamic')
     requests = db.relationship('Request', backref='group', lazy='dynamic')
-
-    def __init__(self, title):
-        self.title = title
 
 
 class Subgroup(db.Model):
@@ -80,17 +75,11 @@ class Subgroup(db.Model):
     group_foreignkey = db.Column(db.Integer(), db.ForeignKey('group.id'))
     requests = db.relationship('Request', backref='subgroup', lazy='dynamic')
 
-    def __init__(self, title):
-        self.title = title
-
 
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     requests = db.relationship('Request', backref='type', lazy='dynamic')
-
-    def __init__(self, name):
-        self.name = name
 
 
 class State(db.Model):
@@ -120,9 +109,6 @@ class Request(db.Model):
     type_foreignkey = db.Column(
         db.Integer, db.ForeignKey('type.id'), nullable=True)
     schedule_foreignkey = db.relationship('Schedule', backref='request')
-
-    def __init__(self, title):
-        self.title = title
 
 
 class Payment(db.Model):
@@ -162,6 +148,76 @@ class Schedule(db.Model):
     request_foreignkey = db.Column(db.Integer, db.ForeignKey(
         'request.id'), nullable=False)
     state_foreignkey = db.Column(db.Integer, db.ForeignKey('state.id'))
+
+
+# Forms
+class UserForm(Form):
+    username = StringField('Username', validators=[
+                           DataRequired(), Length(max=255)])
+    password = PasswordField('Password')
+    firstname = StringField('Firstname', validators=[
+                            DataRequired(), Length(max=255)])
+    lastname = StringField('Lastname', validators=[
+                           DataRequired(), Length(max=255)])
+    phonenumber = StringField('Phone Number')
+    email = StringField('Email', validators=[
+                        DataRequired(), Length(max=255)])
+    age = IntegerField('Age', validators=[number_range(min=12, max=99)])
+
+
+class UserInForm(Form):
+    username = StringField('Username', validators=[
+                           DataRequired(), Length(max=255)])
+    password = PasswordField('Password')
+
+
+class CounselorForm(Form):
+    username = StringField('Username', validators=[
+                           DataRequired(), Length(max=255)])
+    password = PasswordField('Password')
+    firstname = StringField('Firstname', validators=[
+                            DataRequired(), Length(max=255)])
+    lastname = StringField('Lastname', validators=[
+                           DataRequired(), Length(max=255)])
+    phonenumber = StringField('Phone Number')
+    email = StringField('Email', validators=[
+                        DataRequired(), Length(max=255)])
+    degree = SelectField('Degree', choices=[
+                         (1, 'Diploma'), (2, 'Bachelor'), (3, 'Masters'), (4, 'PhD')])
+
+
+class CouselorInForm(Form):
+    username = StringField('Username', validators=[
+                           DataRequired(), Length(max=255)])
+    password = PasswordField('Password')
+
+
+class GroupForm(Form):
+    title = StringField('Title', validators=[DataRequired(), Length(max=255)])
+
+
+class SubgroupForm(Form):
+    title = StringField('Title', validators=[DataRequired(), Length(max=255)])
+
+
+class PaymentForm(Form):
+    value = FloatField('Price', validators=[NumberRange(0.00, 99999.99)])
+
+
+class RespondForm(Form):
+    content = TextAreaField(u'Content', validators=[DataRequired()])
+
+
+class RequestForm(Form):
+    title = StringField('Title', validators=[DataRequired(), Length(max=255)])
+    content = TextAreaField(u'Content', validators=[DataRequired()])
+    group = SelectField(u'Group', coerce=int)
+    subggroup = SelectField(u'Subgroup', coerce=int)
+
+
+class ScheduleForm(Form):
+    timedate = DateTimeField('Datetime', format='% Y-%m-%d')
+
 
 # View code
 
@@ -211,6 +267,40 @@ def requests_by_user(username):
         Request.pub_date.desc()).all()
     recent = sidebar_data()
     return render_template('user.html', user=user, requests=requests, recent=recent)
+
+# Check sign-in
+
+
+@app.route('/create')
+def create_request():
+    return render_template('create.html')
+    # Forms
+
+
+@app.route('/signup', methods=('GET', 'POST'))
+def signup():
+    user_form = UserForm()
+    if user_form.validate_on_submit():
+        new_user = User()
+        new_user.username = user_form.username.data
+        new_user.password = user_form.password.data
+        new_user.firstname = user_form.firstname.data
+        new_user.lastname = user_form.lastname.data
+        new_user.phone_number = user_form.phonenumber.data
+        new_user.email = user_form.email.data
+        new_user.age = user_form.age.data
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+        except Exception as e:
+            flash('Error signing you up: %s' % str(e), 'error')
+            db.session.rollback()
+            return redirect(url_for('signup'))
+        else:
+            flash('Sign-up was successful', 'info')
+        return redirect(url_for('requests_by_user', username=new_user.username))
+
+    return render_template('signup.html', form=user_form)
 
 
 if __name__ == '__main__':
