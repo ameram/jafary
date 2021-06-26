@@ -6,7 +6,7 @@
 <ul class="list-group">
     {% for ro in recent %}
     <li class="list-group-item">
-        <a href="{{ url_for('request', request_id=ro.id) }}">{{ ro.title }}!!!</a>
+        <a href="{{ url_for('qa.request', request_id=ro.id) }}">{{ ro.title }}!!!</a>
     </li>
     {% endfor %}
 </ul>

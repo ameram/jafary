@@ -3,7 +3,7 @@
     <ul class="pagination">
         {% if pagination.has_prev %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('home', page=pagination.prev().page) }}" aria-label="Previous">
+            <a class="page-link" href="{{ url_for('qa.home', page=pagination.prev().page) }}" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
                 <span class="sr-only">Previous</span>
             </a>
@@ -28,7 +28,7 @@
         {% endfor %}
         {% if pagination.has_next %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('home', page=pagination.next().page) }}" aria-label="Next">
+            <a class="page-link" href="{{ url_for('qa.home', page=pagination.next().page) }}" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
                 <span class="sr-only">Next</span>
             </a>
@@ -48,13 +48,13 @@
 {% for request in _requests %}
 <div >
     <h1>
-        <a class="text-dark" href="{{ url_for('request', request_id=request.id) }}">{{ request.title }}</a>
+        <a class="text-dark" href="{{ url_for('qa.request', request_id=request.id) }}">{{ request.title }}</a>
     </h1>
 </div>
 <div class="row">
     <div class="col">
         {{ request.text | truncate(500) | safe }}
-        <a href="{{ url_for('request', request_id=request.id) }}">Read More</a>
+        <a href="{{ url_for('qa.request', request_id=request.id) }}">Read More</a>
     </div>
 </div>
 {% endfor %}

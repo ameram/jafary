@@ -9,10 +9,10 @@
     </div>
     <div class="row shadow-sm">
         <div class="col-lg-6">
-            <p>Written By <a href="{{ url_for('requests_by_user', username=request.user.username) }}">{{ request.user.username }}</a> on {{ request.pub_date.strftime('%Y-%m-%d') }}</p>
+            <p>Written By <a href="{{ url_for('qa.requests_by_user', username=request.user.username) }}">{{ request.user.username }}</a> on {{ request.pub_date.strftime('%Y-%m-%d') }}</p>
         </div>
         <div class="col-lg-6">
-            <p class="text-right"> Group: <a href="{{ url_for('requests_by_group', group_title=request.group.title) }}">{{ request.group.title }}</a></p>
+            <p class="text-right"> Group: <a href="{{ url_for('qa.requests_by_group', group_title=request.group.title) }}">{{ request.group.title }}</a></p>
         </div>
     </div>
     <div class="row">

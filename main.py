@@ -3,7 +3,7 @@
 
 from flask_wtf import FlaskForm as Form
 from flask import Flask, render_template, redirect, url_for, abort, flash, request, \
-    current_app, make_response
+    current_app, make_response, Blueprint, session, g
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy import func
@@ -29,6 +29,13 @@ app.config.from_object(DevConfig)
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(app, metadata=metadata)
 migrate = Migrate(app, db, render_as_batch=True)
+
+qa_blueprint = Blueprint(
+    'qa',
+    __name__,
+    template_folder='templates/qa',
+    url_prefix="/qa"
+)
 
 
 class User(db.Model):
@@ -230,7 +237,13 @@ def sidebar_data():
 
 
 @app.route('/')
-@app.route('/<int:page>')
+def index():
+    return redirect(url_for('qa.home'))
+
+
+
+@qa_blueprint.route('/')
+@qa_blueprint.route('/<int:page>')
 def home(page=1):
     requests = Request.query.order_by(Request.pub_date.desc()).paginate(
         page, app.config.get('POSTS_PER_PAGE', 10), False)
@@ -239,7 +252,7 @@ def home(page=1):
     return render_template('home.html', requests=requests, recent=recent)
 
 
-@app.route('/group/<string:group_title>')
+@qa_blueprint.route('/group/<string:group_title>')
 def requests_by_group(group_title):
     group = Group.query.filter_by(title=group_title).first_or_404()
     requests = group.requests.order_by(Request.pub_date.desc()).all()
@@ -248,7 +261,7 @@ def requests_by_group(group_title):
     return render_template('group.html', requests=requests, group=group, recent=recent)
 
 
-@app.route('/request/<int:request_id>', methods=('GET', 'POST'))
+@qa_blueprint.route('/request/<int:request_id>', methods=('GET', 'POST'))
 def request(request_id):
     request = Request.query.get_or_404(request_id)
     if (request.group is not None):
@@ -260,7 +273,7 @@ def request(request_id):
     return render_template('request.html', request=request, group=group, recent=recent,)
 
 
-@app.route('/user/<string:username>')
+@qa_blueprint.route('/user/<string:username>')
 def requests_by_user(username):
     user = User.query.filter_by(username=username).first_or_404()
     requests = user.requests.order_by(
@@ -271,13 +284,13 @@ def requests_by_user(username):
 # Check sign-in
 
 
-@app.route('/create')
+@qa_blueprint.route('/create')
 def create_request():
     return render_template('create.html')
     # Forms
 
 
-@app.route('/signup', methods=('GET', 'POST'))
+@qa_blueprint.route('/signup', methods=('GET', 'POST'))
 def signup():
     user_form = UserForm()
     if user_form.validate_on_submit():
@@ -307,9 +320,19 @@ def signup():
 
     return render_template('signup.html', form=user_form)
 
-@app.errorhandler(404)
+
+@qa_blueprint.errorhandler(404)
 def page_not_load(error):
     return render_template('404.html'), 404
+
+
+app.register_blueprint(qa_blueprint)
+
+
+
+@app.before_request
+def before_request():
+    session['page_loads'] = session.get('page_loads', 0) + 1
 
 
 if __name__ == '__main__':
