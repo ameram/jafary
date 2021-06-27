@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} Create Request {% endblock %}
+{% block body %}
+<div class="row">
+            <div class="col-lg-12">
+        {% block leftbody %}
+    <div class="p-4 shadow-sm">
+    <div class="row">
+        <div class="col">
+        <h3>Request</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+        <form method="POST" action="{{ url_for('qa.edit_post', id=request.id) }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+            {{ form.title.label }}
+            {{ form.title(class_='form-control') }}
+            {% if form.title.errors %}
+                {% for e in form.title.errors %}
+                    <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+            <div class="form-group">
+            {{ form.content.label }}
+            {{ form.content(class_='form-control') }}
+            {% if form.content.errors %}
+                {% for e in form.content.errors %}
+                    <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+            <div class="form-group">
+            {{ form.group.label }}
+            {{ form.group(class_='form-control') }}
+            {% if form.group.errors %}
+                {% for e in form.group.errors %}
+                    <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+            <input class="btn btn-primary" type="submit" value="register" />
+        </form>
+        </div>
+    </div>
+    </div>
+    {% endblock %}
+    </div>
+    {% block rightbody %}
+{% endblock %}
+</div>
+{% endblock %}

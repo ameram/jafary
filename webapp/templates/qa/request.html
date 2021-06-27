@@ -5,6 +5,9 @@
     <div class="row">
         <div class="col">
             <h1>{{ request.title }}</h1>
+            {% if current_user.id == request.user_foreignkey %}
+            <a href="{{ url_for('.edit_post', id=request.id) }}" class="btn btn-primary">Edit</a>
+            {% endif %}
         </div>
     </div>
     <div class="row shadow-sm">
@@ -21,4 +24,52 @@
         </div>
     </div>
 </div>
+<div class="p-4 shadow-sm">
+    <div class="row">
+        <div class="col">
+            <h4>New Respond:</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <form method="POST" action="{{ url_for('qa.request', request_id=request.id) }}">
+                   {{ form.hidden_tag() }}
+                   <div class="form-group">
+                       {{ form.content.label }}
+                       {% if form.content.errors %}
+                           {% for e in form.content.errors %}
+                               <p class="help-block">{{ e }}</p>
+                           {% endfor %}
+                       {% endif %}
+                       {{ form.content(class_='form-control') }}
+                       </div>
+                   <input class="btn btn-primary" type="submit" value="Add Respond">
+            </form>
+        </div>
+    </div>
+</div>
+<div class="p-4 shadow-sm">
+    <div class="row">
+        <div class="col">
+            <h4>Responds ({{ zz | length }})</h4>
+        </div>
+    </div>
+    <div class="row p-2">
+        <div class="col">
+            {% if zz | length == 0 %}
+            <p>There are no comments for this post.</p>
+            {% else %}
+            {% for i, j in zz %}
+            <div class="shadow-sm p-2">
+                <a href="{{ url_for('qa.requests_by_user', username=j.username) }}">
+                    <h5>{{ j.username }}</h5></a>
+                <dt>{{ i.date.strftime('%Y-%m-%d') }}</dt>
+                <dd>{{ i.content }}</dd>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 {% endblock %}

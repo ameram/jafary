@@ -1,6 +1,8 @@
+import functools
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
-from flask_login import AnonymousUserMixin
+from flask_login import AnonymousUserMixin, current_user
+from flask import abort
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
@@ -9,6 +11,18 @@ login_manager.login_message = "Please login to access this page"
 login_manager.login_message_category = "info"
 
 bcrypt = Bcrypt()
+
+
+def has_role(name):
+    def real_decorator(f):
+        def wraps(*args, **kwargs):
+            if current_user.has_role(name):
+                return f(*args, **kwargs)
+            else:
+                abort(403)
+        return functools.update_wrapper(wraps, f)
+    return real_decorator
+
 
 @login_manager.user_loader
 def load_user(userid):
@@ -24,5 +38,6 @@ def create_module(app, **kwargs):
 
 
 class BlogAnonymous(AnonymousUserMixin):
+
     def __init__(self):
         self.username = 'Guest'

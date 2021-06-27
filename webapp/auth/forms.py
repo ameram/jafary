@@ -52,8 +52,3 @@ class RegisterForm(Form):
         return True
 
 
-class RequestForm(Form):
-    title = StringField('Title', validators=[DataRequired(), Length(max=255)])
-    content = TextAreaField(u'Content', validators=[DataRequired()])
-    group = SelectField(u'Group', coerce=int)
-    subggroup = SelectField(u'Subgroup', coerce=int)

@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm as Form
 from wtforms import StringField, TextAreaField, SelectField, PasswordField, IntegerField, FloatField, DateTimeField
 from wtforms.validators import DataRequired, Length, NumberRange
+from .models import Group
 
 
 class CounselorForm(Form):
@@ -40,6 +41,15 @@ class RespondForm(Form):
     content = TextAreaField(u'Content', validators=[DataRequired()])
 
 
-
 class ScheduleForm(Form):
     timedate = DateTimeField('Datetime', format='% Y-%m-%d')
+
+
+class RequestForm(Form):
+    title = StringField('Title', validators=[DataRequired(), Length(max=255)])
+    content = TextAreaField(u'Content', validators=[DataRequired()])
+    group = SelectField('Group')
+
+    def __init__(self):
+        super(RequestForm, self).__init__()
+        self.group.choices = [(c.id, c.title) for c in Group.query.all()]

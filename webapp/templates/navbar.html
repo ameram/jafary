@@ -11,10 +11,19 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('qa.home') }}"></a>
             </li>
+            {% if current_user.is_authenticated %}
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">
                 <i class="fa fa-fw fa-sign-out"></i>Logout</a>
             </li>
+            <li class="nav-item">
+                <span class="navbar-text text-primary">
+                    {{ current_user.username }}
+                </span>
+                
+            </li>
+
+            {% else %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('auth.login') }}">
                 <i class="fa fa-fw fa-sign-in"></i>Login</a>
@@ -23,6 +32,7 @@
                 <a class="nav-link" href="{{ url_for('auth.register') }}">
                 <i class="fa fa-fw fa-sign-in"></i>Register</a>
             </li>
+            {% endif %}
         </ul>
     </div>
 </nav>

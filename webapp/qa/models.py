@@ -1,10 +1,15 @@
-from flask_login.mixins import AnonymousUserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy import func, select, table, column
 from datetime import datetime
 from .. import db
-from ..auth import bcrypt
+from ..auth import bcrypt, AnonymousUserMixin
+
+roles = db.Table(
+    'role_users',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('role_id', db.Integer, db.ForeignKey('role.id'))
+)
 
 
 class User(db.Model):
@@ -20,6 +25,26 @@ class User(db.Model):
     payments = db.relationship('Payment', backref='user', lazy='dynamic')
     responds = db.relationship('Respond', backref='user', lazy='dynamic')
     schedule_foreignkey = db.relationship('Schedule', backref='user')
+
+    roles = db.relationship(
+        'Role',
+        secondary=roles,
+        backref=db.backref('users', lazy='dynamic')
+    )
+
+    def __init__(self, username=""):
+        default = Role.query.filter_by(name="default").one()
+        self.roles.append(default)
+        self.username = username
+
+    def __repr__(self):
+        return '<User {}>'.format(self.username)
+
+    def has_role(self, name):
+        for role in self.roles:
+            if role.name == name:
+                return True
+        return False
 
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password)
@@ -151,3 +176,15 @@ class Schedule(db.Model):
     request_foreignkey = db.Column(db.Integer, db.ForeignKey(
         'request.id'), nullable=False)
     state_foreignkey = db.Column(db.Integer, db.ForeignKey('state.id'))
+
+
+class Role(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return '<Role {}>'.format(self.name)

@@ -1,7 +1,9 @@
 from random import randint
-from . import db
+from .webapp.qa.models import db, User, Role, bcrypt
 from .main import Request
 from sqlalchemy.exc import IntegrityError
+import logging
+
 dict = ['Anxiety disorder', 'Eating disorder', 'Sleep disorder']
 desc = ['Anxiety disorder: Anxiety or fear that interferes with normal functioning may be classified as an anxiety disorder.',
         'These disorders involve disproportionate concern in matters of food and weight.',
@@ -20,3 +22,10 @@ def users(count=len(dict)):
         except IntegrityError:
             db.session.rollback()
 
+
+fake_users = [
+    {'username': 'user_default', 'role': 'default'},
+    {'username': 'admin', 'role': 'admin'}
+]
+
+fake_roles = ['default', 'admin']
