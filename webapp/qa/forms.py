@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm as Form
 from wtforms import StringField, TextAreaField, SelectField, PasswordField, IntegerField, FloatField, DateTimeField
+from wtforms.fields.core import BooleanField
 from wtforms.validators import DataRequired, Length, NumberRange
-from .models import Group
+from .models import Group, Subgroup
 
 
 class CounselorForm(Form):
@@ -49,7 +50,13 @@ class RequestForm(Form):
     title = StringField('Title', validators=[DataRequired(), Length(max=255)])
     content = TextAreaField(u'Content', validators=[DataRequired()])
     group = SelectField('Group')
+    subgroup = SelectField('Subgroup')
+    paid = BooleanField('Paid', validators=[DataRequired()])
 
     def __init__(self):
         super(RequestForm, self).__init__()
         self.group.choices = [(c.id, c.title) for c in Group.query.all()]
+
+    def __init__(self):
+        super(RequestForm, self).__init__()
+        self.subgroup.choices = [(c.id, c.title) for c in Subgroup.query.all()]
