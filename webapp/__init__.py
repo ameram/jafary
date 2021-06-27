@@ -25,6 +25,7 @@ def page_not_found(error):
 def create_app(object_name):
     from .qa.controllers import qa_blueprint
     from .main.controllers import main_blueprint
+    from .auth import create_module as auth_create_module
 
     app = Flask(__name__)
     app.config.from_object(object_name)
@@ -35,4 +36,5 @@ def create_app(object_name):
     app.register_blueprint(main_blueprint)
     app.register_blueprint(qa_blueprint)
     app.register_error_handler(404, page_not_found)
+    auth_create_module(app)
     return app

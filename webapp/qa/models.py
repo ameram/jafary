@@ -1,8 +1,10 @@
+from flask_login.mixins import AnonymousUserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy import func, select, table, column
 from datetime import datetime
 from .. import db
+from ..auth import bcrypt
 
 
 class User(db.Model):
@@ -18,6 +20,33 @@ class User(db.Model):
     payments = db.relationship('Payment', backref='user', lazy='dynamic')
     responds = db.relationship('Respond', backref='user', lazy='dynamic')
     schedule_foreignkey = db.relationship('Schedule', backref='user')
+
+    def set_password(self, password):
+        self.password = bcrypt.generate_password_hash(password)
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+
+    @property
+    def is_authenticated(self):
+        if isinstance(self, AnonymousUserMixin):
+            return False
+        else:
+            return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        if isinstance(self, AnonymousUserMixin):
+            return True
+        else:
+            return False
+
+    def get_id(self):
+        return str(self.id)
 
 
 class Counselor(db.Model):

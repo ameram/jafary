@@ -2,7 +2,6 @@ from flask import Flask, render_template, redirect, url_for, abort, flash, reque
     current_app, make_response, Blueprint, session, g
 from sqlalchemy import func
 from  .models import db, Request, User, Counselor, Respond, Payment, Schedule, Type, Group, Subgroup, State
-from .forms import UserInForm, UserForm
 
 
 
@@ -65,33 +64,3 @@ def requests_by_user(username):
 def create_request():
     return render_template('create.html')
 
-
-@qa_blueprint.route('/signup', methods=('GET', 'POST'))
-def signup():
-    user_form = UserForm()
-    if user_form.validate_on_submit():
-        new_user = User()
-        new_user.username = user_form.username.data
-        new_user.password = user_form.password.data
-        new_user.firstname = user_form.firstname.data
-        new_user.lastname = user_form.lastname.data
-        new_user.phone_number = user_form.phonenumber.data
-        new_user.email = user_form.email.data
-        new_user.age = user_form.age.data
-        v = User.query.filter_by(username=new_user.username).first()
-        if v is None:
-            flash('Username is taken', 'error')
-            db.session.rollback()
-            return redirect(url_for('signup'))
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-        except Exception as e:
-            flash('Error signing you up: %s' % str(e), 'error')
-            db.session.rollback()
-            return redirect(url_for('signup'))
-        else:
-            flash('Sign-up was successful', 'info')
-        return redirect(url_for('requests_by_user', username=new_user.username))
-
-    return render_template('signup.html', form=user_form)

@@ -3,26 +3,6 @@ from wtforms import StringField, TextAreaField, SelectField, PasswordField, Inte
 from wtforms.validators import DataRequired, Length, NumberRange
 
 
-class UserForm(Form):
-    username = StringField('Username', validators=[
-                           DataRequired(), Length(max=255)])
-    password = PasswordField('Password')
-    firstname = StringField('Firstname', validators=[
-                            DataRequired(), Length(max=255)])
-    lastname = StringField('Lastname', validators=[
-                           DataRequired(), Length(max=255)])
-    phonenumber = StringField('Phone Number')
-    email = StringField('Email', validators=[
-                        DataRequired(), Length(max=255)])
-    age = IntegerField('Age', validators=[NumberRange(min=12, max=99)])
-
-
-class UserInForm(Form):
-    username = StringField('Username', validators=[
-                           DataRequired(), Length(max=255)])
-    password = PasswordField('Password')
-
-
 class CounselorForm(Form):
     username = StringField('Username', validators=[
                            DataRequired(), Length(max=255)])
@@ -59,12 +39,6 @@ class PaymentForm(Form):
 class RespondForm(Form):
     content = TextAreaField(u'Content', validators=[DataRequired()])
 
-
-class RequestForm(Form):
-    title = StringField('Title', validators=[DataRequired(), Length(max=255)])
-    content = TextAreaField(u'Content', validators=[DataRequired()])
-    group = SelectField(u'Group', coerce=int)
-    subggroup = SelectField(u'Subgroup', coerce=int)
 
 
 class ScheduleForm(Form):
