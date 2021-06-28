@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect, url_for, abort, flash, reque
 from flask_login.utils import login_required
 from flask_login import current_user, AnonymousUserMixin, mixins
 from sqlalchemy import func
+from sqlalchemy.sql.functions import user
 from .models import db, Request, User, Respond, Payment, Group, Subgroup, Role
 from .forms import RequestForm, RespondForm, PaymentForm, GroupForm, SubgroupForm
 from ..auth import has_role
@@ -213,3 +214,14 @@ def user_controller():
                            request_count=rcount,
                            group_count=gcount,
                            subgroup_count=sgcount)
+
+
+@qa_blueprint.route('/verify/<int:user_id>', methods=('GET', 'POST'))
+@login_required
+@has_role('admin')
+def user_verify(user_id):
+    user = User.query.get(user_id)
+    user.roles.append(Role.query.filter_by(name="counselor").first())
+    db.session.merge(user)
+    db.session.commit()
+    return redirect(url_for('qa.home'))

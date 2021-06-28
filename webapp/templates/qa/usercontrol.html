@@ -25,7 +25,8 @@
         <th scope="row">{{ i.id }}</th>
         <td>{{ i.firstname }}</td>
         <td>{{ i.lastname }}</td>
-        <td><a href="{{url_for('qa.requests_by_user', username=i.username)}}" class="btn">@{{ i.username }}</a></td>
+        <td><a href="{{ url_for('qa.requests_by_user', username=i.username) }}" class="btn">@{{ i.username }}</a></td>
+        <td><a href="{{ url_for('qa.user_verify', user_id=i.id) }}" class="btn">Verify</a></td>
       </tr>
       {% endfor %} {% endif %}
     </tbody>
