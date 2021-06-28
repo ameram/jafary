@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %} USER CONTROL {% endblock %}
+{% block leftbody %}
+<div class="container">
+<div class="row justify-content-md-center">
+  <div class="col col-lg-10 bg-light">
+    <h1 class="text-center">Users</h1>
+  
+  <table class="table">
+    {% if defaults | length == 0 %}
+    <p>There are no defaults for verification.</p>
+    {% else %}
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">First</th>
+        <th scope="col">Last</th>
+        <th scope="col">Username</th>
+        <th scope="col">Verify</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in defaults %}
+      <tr>
+        <th scope="row">{{ i.id }}</th>
+        <td>{{ i.firstname }}</td>
+        <td>{{ i.lastname }}</td>
+        <td><a href="{{url_for('qa.requests_by_user', username=i.username)}}" class="btn">@{{ i.username }}</a></td>
+      </tr>
+      {% endfor %} {% endif %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+</div>
+{% endblock %}
+{% block rightbody %}
+<div class="row">
+    <div class="col">
+        <h5>Stats</h5>
+    </div>
+</div>
+<ul class="list-group">
+    <li class="list-group-item">User count: {{ count }}</li>
+    <li class="list-group-item">Request count: {{ request_count }}</li>
+    <li class="list-group-item">Group count: {{ request_count }}</li>
+    <li class="list-group-item">Subgroup count: {{ request_count }}</li>
+</ul>
+{% endblock %}

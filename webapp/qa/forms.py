@@ -32,6 +32,11 @@ class GroupForm(Form):
 
 class SubgroupForm(Form):
     title = StringField('Title', validators=[DataRequired(), Length(max=255)])
+    group = SelectField('Group', validators=[DataRequired()])
+
+    def __init__(self):
+        super(SubgroupForm, self).__init__()
+        self.group.choices = [(c.id, c.title) for c in Group.query.all()]
 
 
 class PaymentForm(Form):

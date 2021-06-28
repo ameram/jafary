@@ -13,20 +13,26 @@
             {% endif %}
         </div>
     </div>
-    <div class="row shadow-sm">
+    <div class="row border-bottom">
         <div class="col-lg-6">
-            <p>Written By <a href="{{ url_for('qa.requests_by_user', username=request.user.username) }}">{{ request.user.username }}</a> on {{ request.pub_date.strftime('%Y-%m-%d') }}</p>
+            <a href="{{ url_for('qa.requests_by_user', username=request.user.username) }}">@{{ request.user.username }}</a>
+            <h6 class="text-muted">{{ request.pub_date.strftime('%Y-%m-%d') }}</h6>
+            <h6 class="text-left">{% if request.paid  %}Paid{% else %}Free{% endif %}</h6>
         </div>
         <div class="col-lg-6">
-            <p class="text-right"> Group: <a href="{{ url_for('qa.requests_by_group', group_title=request.group.title) }}">{{ request.group.title }}</a></p>
+            <p class="text-right"><a href="{{ url_for('qa.requests_by_group', group_title=request.group.title) }}">#{{ request.group.title }}</a></p>
         </div>
     </div>
+    
+    <br>
     <div class="row">
         <div class="col">
-            {{ request.content | safe }}
+            <p>{{ request.content | safe }}</p>
         </div>
     </div>
 </div>
+{% if not current_user.is_anonymous %}
+{% if not current_user.id == request.user_foreignkey %}
 <div class="p-4 shadow-sm">
     <div class="row">
         <div class="col">
@@ -51,6 +57,8 @@
         </div>
     </div>
 </div>
+{% endif %}
+{% endif %}
 <div class="p-4 shadow-sm">
     <div class="row">
         <div class="col">

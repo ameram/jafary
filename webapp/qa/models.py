@@ -83,8 +83,6 @@ class Counselor(db.Model):
     password = db.Column(db.String(255))
     degree = db.Column(db.String(255))
     score = db.Column(db.Integer(), default=0)
-    requests = db.relationship('Request', backref='counselor', lazy='dynamic')
-    responds = db.relationship('Respond', backref='counselor', lazy='dynamic')
 
 
 class Group(db.Model):
@@ -104,13 +102,11 @@ class Subgroup(db.Model):
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    requests = db.relationship('Request', backref='type', lazy='dynamic')
 
 
 class State(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    requests = db.relationship('Request', backref='state')
 
 
 class Request(db.Model):
@@ -118,31 +114,24 @@ class Request(db.Model):
     content = db.Column(db.String(255))
     title = db.Column(db.String(255), nullable=False)
     pub_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
+    paid = db.Column(db.Boolean, default=False)
     user_foreignkey = db.Column(
         db.Integer(), db.ForeignKey('user.id'), nullable=False)
-    counselor_foreignkey = db.Column(
-        db.Integer(), db.ForeignKey('counselor.id'))
     group_foreignkey = db.Column(db.Integer(), db.ForeignKey(
         'group.id'), nullable=True)
     subgroup_foreignkey = db.Column(db.Integer(), db.ForeignKey('subgroup.id'))
     arrangements = db.relationship('Payment', backref='request', lazy=True)
     responds = db.relationship('Respond', backref='request', lazy='dynamic')
-    state_foreignkey = db.Column(
-        db.Integer, db.ForeignKey('state.id'), nullable=True)
-    type_foreignkey = db.Column(
-        db.Integer, db.ForeignKey('type.id'), nullable=True)
 
 
 class Payment(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     value = db.Column(db.Float(), nullable=False)
     pay_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    call = db.Column(db.Boolean, default=False, nullable=False)
+    call = db.Column(db.Boolean, nullable=True)
     counselor_foreignkey = db.Column(
         db.Integer(), db.ForeignKey('user.id'), nullable=False)
     request_foreignkey = db.Column(db.Integer(), db.ForeignKey('request.id'))
-
 
 
 class Respond(db.Model):
@@ -152,10 +141,9 @@ class Respond(db.Model):
 
     user_foreignkey = db.Column(
         db.Integer(), db.ForeignKey('user.id'), nullable=True)
-    counselor_foreignkey = db.Column(
-        db.Integer(), db.ForeignKey('counselor.id'))
     request_foreignkey = db.Column(db.Integer(), db.ForeignKey(
         'request.id'), nullable=False)
+
 
 class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

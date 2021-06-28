@@ -2,18 +2,23 @@
 {% import 'macros.html' as macros %}
 {% block title %} {{ user.username }}'s Requests{% endblock %}
 {% block leftbody %}
-<div class="container">
-  <div class="row">
-    <div class=".col-auto align-left">
-      <ul class="list-group">
+<h1 class="display-3">Requests</h1>
+{{ macros.render_requests(requests, pagination=False) }}
+{% endblock %}
+
+{% block rightbody %}
+<div class="row">
+    <div class="col">
+        <h5>Info</h5>
+    </div>
+</div>
+<ul class="list-group">
         <li class="list-group-item active">Requests By {{ user.username }}</li>
         <li class="list-group-item">Firstname: {{ user.firstname }}</li>
         <li class="list-group-item">Lastname: {{ user.lastname }}</li>
         <li class="list-group-item">Phone Number: {{ user.phone_number }}</li>
         <li class="list-group-item">Age: {{ user.age }}</li>
         <li class="list-group-item">Roles: {% for i in user.roles %} {{ i.name | capitalize}} {% endfor %}</li>
-      </ul>
-    </div>
-  </div>
-</div>
-{{ macros.render_requests(requests, pagination=False) }} {% endblock %}
+</ul>
+{% endblock %}
+

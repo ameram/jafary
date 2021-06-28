@@ -9,9 +9,9 @@ class ProdConfig(Config):
 
 class DevConfig(Config):
     debug = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///database.db"
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root@127.0.0.1/moshavere"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = "\x02\xd0\xbf'\xfc\xdc\xfaV\x97\xb6\x06\xa9\\g\xf2\xe8\xa4\xd5\xc1\xce\xdd\xefa\x0c"
 
-# mysql+pymysql://root@localhost/jafary
 # 
+#  "sqlite:///database.db"

@@ -46,8 +46,9 @@
 {% endif %}
 
 {% for request in _requests %}
-<div >
-    <h1>
+<br>
+<div>
+    <h1 class="display-4">
         <a class="text-dark" href="{{ url_for('qa.request', request_id=request.id) }}">{{ request.title }}</a>
     </h1>
 </div>
