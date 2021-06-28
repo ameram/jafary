@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} Edit Request {% endblock %}
+{% block title %} Create Payment {% endblock %}
 {% block body %}
 <div class="row">
             <div class="col-lg-12">
@@ -12,37 +12,37 @@
     </div>
     <div class="row">
         <div class="col">
-        <form method="POST" action="{{ url_for('qa.edit_post', id=request.id) }}">
+        <form method="POST" action="{{ url_for('qa.pay_schdule', id=request.id) }}">
             {{ form.hidden_tag() }}
 
             <div class="form-group">
-            {{ form.title.label }}
-            {{ form.title(class_='form-control') }}
-            {% if form.title.errors %}
-                {% for e in form.title.errors %}
+            {{ form.value.label }}
+            {{ form.value(class_='form-control') }}
+            {% if form.value.errors %}
+                {% for e in form.value.errors %}
                     <p class="help-block">{{ e }}</p>
                 {% endfor %}
                 {% endif %}
             </div>
             <div class="form-group">
-            {{ form.content.label }}
-            {{ form.content(class_='form-control') }}
-            {% if form.content.errors %}
-                {% for e in form.content.errors %}
+            {{ form.date.label }}
+            {{ form.date(class_='form-control') }}
+            {% if form.date.errors %}
+                {% for e in form.date.errors %}
                     <p class="help-block">{{ e }}</p>
                 {% endfor %}
                 {% endif %}
             </div>
             <div class="form-group">
-            {{ form.group.label }}
-            {{ form.group(class_='form-control') }}
-            {% if form.group.errors %}
-                {% for e in form.group.errors %}
+            {{ form.method.label }}
+            {{ form.method(class_='form-control') }}
+            {% if form.method.errors %}
+                {% for e in form.method.errors %}
                     <p class="help-block">{{ e }}</p>
                 {% endfor %}
                 {% endif %}
             </div>
-            <input class="btn btn-primary" type="submit" value="register" />
+            <input class="btn btn-primary" type="submit" value="Set schdule" />
         </form>
         </div>
     </div>

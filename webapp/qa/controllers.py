@@ -4,8 +4,8 @@ from flask_login.utils import login_required
 from flask_login import current_user
 from sqlalchemy import func
 # from sqlalchemy.sql.functions import current_user
-from .models import db, Request, User, Counselor, Respond, Payment, Schedule, Type, Group, Subgroup, State, Role
-from .forms import RequestForm, RespondForm
+from .models import db, Request, User, Counselor, Respond, Payment, Group, Subgroup, Role
+from .forms import RequestForm, RespondForm, PaymentForm
 from ..auth import has_role
 
 
@@ -86,7 +86,9 @@ def create_request():
         req.title = form.title.data
         req.content = form.content.data
         req.user_foreignkey = current_user.id
-        req.group_foreignkey = form.group.id
+        req.group_foreignkey = form.group.data
+        req.subgroup_foreignkey = form.subgroup.data
+        req.type_foreignkey = 1 if form.paid.data == True else 2
         db.session.add(req)
         db.session.commit()
         flash('Request added.')
@@ -98,7 +100,6 @@ def create_request():
 @login_required
 @has_role('user')
 def edit_post(id):
-    print(current_user)
     request = Request.query.get_or_404(id)
     if current_user.id == request.user_foreignkey:
         form = RequestForm()
@@ -116,3 +117,26 @@ def edit_post(id):
         form.group.data = request.group_foreignkey
         return render_template('edit.html', form=form, request=request)
     abort(403)
+
+
+@qa_blueprint.route('/pay/<int:id>', methods=('GET', 'POST'))
+@login_required
+@has_role('counselor')
+def pay_schdule(id):
+    request = Request.query.get_or_404(id)
+    if not current_user.id == request.user_foreignkey:
+        form = PaymentForm()
+        if form.validate_on_submit():
+            payment = Payment()
+            payment.value = float(form.value.data)
+            payment.pay_date = form.date.data
+            payment.method = form.method.data
+            payment.counselor_foreignkey = current_user.id
+            db.session.add(request)
+            db.session.commit()
+            request.payment_foreignkey = payment.id
+            flash('Payment added')
+            return redirect(url_for('qa.request', request_id=request.id))
+        return render_template('payment.html', form=form, request=request)
+    abort(403)
+

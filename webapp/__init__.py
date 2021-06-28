@@ -16,7 +16,8 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
-migrate = Migrate(db, render_as_batch=True)
+# db = SQLAlchemy()
+migrate = Migrate()
 
 
 def page_not_found(error):
@@ -33,7 +34,7 @@ def create_app(object_name):
 
     metadata = MetaData(naming_convention=convention)
     db.init_app(app)
-    migrate.init_app(app)
+    migrate.init_app(app, db, render_as_batch=True)
     app.register_blueprint(main_blueprint)
     app.register_blueprint(qa_blueprint)
     app.register_error_handler(404, page_not_found)

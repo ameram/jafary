@@ -42,6 +42,27 @@
                 {% endfor %}
                 {% endif %}
             </div>
+
+            <div class="form-group">
+            {{ form.subgroup.label }}
+            {{ form.subgroup(class_='form-control') }}
+            {% if form.subgroup.errors %}
+                {% for e in form.subgroup.errors %}
+                    <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+            {{ form.paid.label }}
+            {{ form.paid(class_='form-control') }}
+            {% if form.paid.errors %}
+                {% for e in form.paid.errors %}
+                    <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+
             <input class="btn btn-primary" type="submit" value="register" />
         </form>
         </div>

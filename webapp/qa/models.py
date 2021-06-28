@@ -24,7 +24,6 @@ class User(db.Model):
     requests = db.relationship('Request', backref='user', lazy='dynamic')
     payments = db.relationship('Payment', backref='user', lazy='dynamic')
     responds = db.relationship('Respond', backref='user', lazy='dynamic')
-    schedule_foreignkey = db.relationship('Schedule', backref='user')
 
     roles = db.relationship(
         'Role',
@@ -85,9 +84,7 @@ class Counselor(db.Model):
     degree = db.Column(db.String(255))
     score = db.Column(db.Integer(), default=0)
     requests = db.relationship('Request', backref='counselor', lazy='dynamic')
-    payments = db.relationship('Payment', backref='counselor', lazy='dynamic')
     responds = db.relationship('Respond', backref='counselor', lazy='dynamic')
-    schedule_foreignkey = db.relationship('Schedule', backref='counselor')
 
 
 class Group(db.Model):
@@ -114,7 +111,6 @@ class State(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     requests = db.relationship('Request', backref='state')
-    schedule_foreignkey = db.relationship('Schedule', backref='state')
 
 
 class Request(db.Model):
@@ -130,25 +126,23 @@ class Request(db.Model):
     group_foreignkey = db.Column(db.Integer(), db.ForeignKey(
         'group.id'), nullable=True)
     subgroup_foreignkey = db.Column(db.Integer(), db.ForeignKey('subgroup.id'))
-    payment_foreignkey = db.Column(db.Integer(), db.ForeignKey('payment.id'))
+    arrangements = db.relationship('Payment', backref='request', lazy=True)
     responds = db.relationship('Respond', backref='request', lazy='dynamic')
     state_foreignkey = db.Column(
         db.Integer, db.ForeignKey('state.id'), nullable=True)
     type_foreignkey = db.Column(
         db.Integer, db.ForeignKey('type.id'), nullable=True)
-    schedule_foreignkey = db.relationship('Schedule', backref='request')
 
 
 class Payment(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     value = db.Column(db.Float(), nullable=False)
     pay_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    user_foreignkey = db.Column(
-        db.Integer(), db.ForeignKey('user.id'), nullable=False)
+    call = db.Column(db.Boolean, default=False, nullable=False)
     counselor_foreignkey = db.Column(
-        db.Integer(), db.ForeignKey('counselor.id'))
-    request_to = db.relationship('Request', backref='payment', lazy=True)
-    responds = db.relationship('Respond', backref='payment', lazy='dynamic')
+        db.Integer(), db.ForeignKey('user.id'), nullable=False)
+    request_foreignkey = db.Column(db.Integer(), db.ForeignKey('request.id'))
+
 
 
 class Respond(db.Model):
@@ -162,21 +156,6 @@ class Respond(db.Model):
         db.Integer(), db.ForeignKey('counselor.id'))
     request_foreignkey = db.Column(db.Integer(), db.ForeignKey(
         'request.id'), nullable=False)
-    payment_foreignkey = db.Column(
-        db.Integer(), db.ForeignKey('payment.id'), nullable=True)
-
-
-class Schedule(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    s_time = db.Column(db.DateTime)
-    user_foreignkey = db.Column(
-        db.Integer, db.ForeignKey('user.id'), nullable=False)
-    counselor_foreignkey = db.Column(
-        db.Integer, db.ForeignKey('counselor.id'))
-    request_foreignkey = db.Column(db.Integer, db.ForeignKey(
-        'request.id'), nullable=False)
-    state_foreignkey = db.Column(db.Integer, db.ForeignKey('state.id'))
-
 
 class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

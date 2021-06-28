@@ -8,6 +8,9 @@
             {% if current_user.id == request.user_foreignkey %}
             <a href="{{ url_for('.edit_post', id=request.id) }}" class="btn btn-primary">Edit</a>
             {% endif %}
+            {% if request.type_foreignkey == 1 and current_user.has_role('counselor') and current_user.id != request.user_foreignkey %}
+                <a href="{{ url_for('qa.pay_schdule', id=request.id) }}" class="btn btn-primary">Send a suggestion</a>
+            {% endif %}
         </div>
     </div>
     <div class="row shadow-sm">

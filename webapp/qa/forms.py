@@ -36,14 +36,12 @@ class SubgroupForm(Form):
 
 class PaymentForm(Form):
     value = FloatField('Price', validators=[NumberRange(0.00, 99999.99)])
+    date = DateTimeField('Date', format= '%d/%m/%y')
+    method = BooleanField('Call')
 
 
 class RespondForm(Form):
     content = TextAreaField(u'Content', validators=[DataRequired()])
-
-
-class ScheduleForm(Form):
-    timedate = DateTimeField('Datetime', format='% Y-%m-%d')
 
 
 class RequestForm(Form):
@@ -51,12 +49,9 @@ class RequestForm(Form):
     content = TextAreaField(u'Content', validators=[DataRequired()])
     group = SelectField('Group')
     subgroup = SelectField('Subgroup')
-    paid = BooleanField('Paid', validators=[DataRequired()])
+    paid = BooleanField('Paid')
 
     def __init__(self):
         super(RequestForm, self).__init__()
         self.group.choices = [(c.id, c.title) for c in Group.query.all()]
-
-    def __init__(self):
-        super(RequestForm, self).__init__()
         self.subgroup.choices = [(c.id, c.title) for c in Subgroup.query.all()]
