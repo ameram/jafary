@@ -115,7 +115,7 @@ def create_request():
         req.paid = form.paid.data
         db.session.add(req)
         db.session.commit()
-        flash('Request added.')
+        flash(f'Request {req.id} added.')
         return redirect(url_for('qa.request', request_id=req.id))
     return render_template('create.html', form=form)
 
