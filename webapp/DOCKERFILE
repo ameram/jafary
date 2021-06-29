@@ -1,0 +1,18 @@
+FROM python:python3.6
+# Create and set directory where the code will live
+RUN mkdir /srv/app
+WORKDIR /srv/app
+# Copy our code
+
+COPY . .
+# Install all python packages required
+RUN pip install -r requirements.txt
+# Setup NGINX and uWSGI
+COPY ./deploy/uwsgi.ini /etc/uwsgi/uwsgi.ini
+ENV FLASK_APP main.py
+ENV WEBAPP_ENV "dev"
+RUN flask db init
+RUN flask db migrate
+RUN flask db upgrade
+ENV LISTEN_PORT 80
+EXPOSE 80
