@@ -129,6 +129,7 @@ class Payment(db.Model):
     value = db.Column(db.Float(), nullable=False)
     pay_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     call = db.Column(db.Boolean, nullable=True)
+    accepted = db.Column(db.Boolean, default=False)
     counselor_foreignkey = db.Column(
         db.Integer(), db.ForeignKey('user.id'), nullable=False)
     request_foreignkey = db.Column(db.Integer(), db.ForeignKey('request.id'))

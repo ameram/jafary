@@ -8,7 +8,7 @@
             {% if current_user.id == request.user_foreignkey %}
             <a href="{{ url_for('.edit_post', id=request.id) }}" class="btn btn-primary">Edit</a>
             {% endif %}
-            {% if request.type_foreignkey == 1 and current_user.has_role('counselor') and current_user.id != request.user_foreignkey %}
+            {% if request.paid == True and current_user.has_role('counselor') and current_user.id != request.user_foreignkey %}
                 <a href="{{ url_for('qa.pay_schdule', id=request.id) }}" class="btn btn-primary">Send a suggestion</a>
             {% endif %}
         </div>
@@ -82,5 +82,33 @@
         </div>
     </div>
 </div>
+
+<div class="p-4 shadow-sm">
+    <div class="row">
+        <div class="col">
+            <h4>Paid Responds ({{ pp | length }})</h4>
+        </div>
+    </div>
+    <div class="row p-2">
+        <div class="col">
+            {% if pp | length == 0 %}
+            <p>There are no comments for this post.</p>
+            {% else %}
+            {% for i, j in pp %}
+            <div class="shadow-sm p-2">
+                <h4>From <a href="{{ url_for('qa.requests_by_user', username=j.username) }}">{{j.username}}</a></h4>
+                <dt>${{ i.value }}</dt>
+                <dd>{{ i.pay_date.strftime('%Y-%m-%d') }}</dd>
+                <dd>{% if i.Call  %}Call{% else %}Text{% endif %}</dd>
+                {% if not i.accepted  %}
+                <a href="{{ url_for('qa.accept_payment', payment_id=i.id) }}">Accept</a>
+                {% endif  %}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}

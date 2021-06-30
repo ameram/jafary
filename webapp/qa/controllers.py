@@ -5,7 +5,7 @@ from flask_login import current_user, AnonymousUserMixin, mixins
 from sqlalchemy import func
 from sqlalchemy.sql.functions import user
 from .models import db, Request, User, Respond, Payment, Group, Subgroup, Role
-from .forms import RequestForm, RespondForm, PaymentForm, GroupForm, SubgroupForm
+from .forms import DelGroupForm, DelSubgroupForm, RequestForm, RespondForm, PaymentForm, GroupForm, SubgroupForm
 from ..auth import has_role
 
 
@@ -68,6 +68,7 @@ def request(request_id):
     form = RespondForm()
     responds = request.responds.all()
     zz = list()
+    pp = list()
     payments = list()
     for i in responds:
         zz.append((i, User.query.get(i.user_foreignkey)))
@@ -75,7 +76,8 @@ def request(request_id):
     if current_user.is_anonymous:
         pass
     elif current_user.id == request.user_foreignkey:
-        payments = request.arrangements
+        for i in request.arrangements:
+            pp.append((i, User.query.get(i.counselor_foreignkey)))
     if form.validate_on_submit() and current_user is not None:
         if current_user.roles.__contains__(Role.query.filter_by(name="counselor").first()):
             res = Respond()
@@ -88,12 +90,26 @@ def request(request_id):
             return redirect(url_for('qa.request', request_id=res.id))
         else:
             flash('You should be counselor')
-    return render_template('request.html', request=request, recent=recent, form=form, zz=zz, payments=payments)
+    return render_template('request.html',
+                           request=request,
+                           recent=recent,
+                           form=form,
+                           zz=zz,
+                           pp=pp)
 
 
 @qa_blueprint.route('/user/<string:username>')
 def requests_by_user(username):
     user = User.query.filter_by(username=username).first_or_404()
+    requests = user.requests.order_by(
+        Request.pub_date.desc()).all()
+    recent = sidebar_data()
+    return render_template('user.html', user=user, requests=requests, recent=recent)
+
+
+@qa_blueprint.route('/userid/<int:user_id>')
+def requests_by_userid(user_id):
+    user = User.query.get(user_id)
     requests = user.requests.order_by(
         Request.pub_date.desc()).all()
     recent = sidebar_data()
@@ -154,11 +170,11 @@ def pay_schdule(id):
             payment = Payment()
             payment.value = float(form.value.data)
             payment.pay_date = form.date.data
-            payment.method = form.method.data
+            payment.call = form.method.data
             payment.counselor_foreignkey = current_user.id
-            db.session.add(request)
+            payment.request_foreignkey = request.id
+            db.session.add(payment)
             db.session.commit()
-            request.payment_foreignkey = payment.id
             flash('Payment added')
             return redirect(url_for('qa.request', request_id=request.id))
         return render_template('payment.html', form=form, request=request)
@@ -225,3 +241,45 @@ def user_verify(user_id):
     db.session.merge(user)
     db.session.commit()
     return redirect(url_for('qa.home'))
+
+
+@qa_blueprint.route('/accept/<int:payment_id>', methods=('GET', 'POST'))
+@login_required
+@has_role('default')
+def accept_payment(payment_id):
+    payment = Payment.query.get(payment_id)
+    payment.accepted = True
+    db.session.merge(payment)
+    db.session.commit()
+    flash('ACCEPTED.')
+    return redirect(url_for('qa.home'))
+
+
+@qa_blueprint.route('/delete_group/', methods=('GET', 'POST'))
+@login_required
+@has_role('admin')
+def delete_group():
+    form = DelGroupForm()
+    if form.validate_on_submit():
+        group_id = form.group.data
+        db.session.delete(Group.query.get(group_id))
+        db.session.commit()
+        flash('Group deleted')
+        return redirect(url_for('qa.home'))
+    return render_template('delgroup.html', form=form)
+    abort(403)
+
+
+@qa_blueprint.route('/delete_subgroup/', methods=('GET', 'POST'))
+@login_required
+@has_role('admin')
+def delete_subgroup():
+    form = DelSubgroupForm()
+    if form.validate_on_submit():
+        subgroup_id = form.group.data
+        db.session.delete(Subgroup.query.get(subgroup_id))
+        db.session.commit()
+        flash('Subroup deleted')
+        return redirect(url_for('qa.home'))
+    return render_template('delsub.html', form=form)
+    abort(403)

@@ -30,6 +30,14 @@ class GroupForm(Form):
     title = StringField('Title', validators=[DataRequired(), Length(max=255)])
 
 
+class DelGroupForm(Form):
+    group = SelectField('Group', validators=[DataRequired()])
+
+    def __init__(self):
+        super(DelGroupForm, self).__init__()
+        self.group.choices = [(c.id, c.title) for c in Group.query.all()]
+
+
 class SubgroupForm(Form):
     title = StringField('Title', validators=[DataRequired(), Length(max=255)])
     group = SelectField('Group', validators=[DataRequired()])
@@ -39,9 +47,17 @@ class SubgroupForm(Form):
         self.group.choices = [(c.id, c.title) for c in Group.query.all()]
 
 
+class DelSubgroupForm(Form):
+    subgroup = SelectField('Subgroup', validators=[DataRequired()])
+
+    def __init__(self):
+        super(DelSubgroupForm, self).__init__()
+        self.subgroup.choices = [(c.id, c.title) for c in Subgroup.query.all()]
+
+
 class PaymentForm(Form):
     value = FloatField('Price', validators=[NumberRange(0.00, 99999.99)])
-    date = DateTimeField('Date', format= '%d/%m/%y')
+    date = DateTimeField('Date', format='%d/%m/%y')
     method = BooleanField('Call')
 
 
