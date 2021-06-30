@@ -30,6 +30,16 @@ class GroupForm(Form):
     title = StringField('Title', validators=[DataRequired(), Length(max=255)])
 
 
+class GetUser(Form):
+    username = StringField('Username', validators=[
+                           DataRequired(), Length(max=255)])
+
+
+class GetGroup(Form):
+    title = StringField('Group Title', validators=[
+                           DataRequired(), Length(max=255)])
+
+
 class DelGroupForm(Form):
     group = SelectField('Group', validators=[DataRequired()])
 

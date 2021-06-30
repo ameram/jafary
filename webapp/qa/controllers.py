@@ -5,7 +5,7 @@ from flask_login import current_user, AnonymousUserMixin, mixins
 from sqlalchemy import func
 from sqlalchemy.sql.functions import user
 from .models import db, Request, User, Respond, Payment, Group, Subgroup, Role
-from .forms import DelGroupForm, DelSubgroupForm, RequestForm, RespondForm, PaymentForm, GroupForm, SubgroupForm
+from .forms import DelGroupForm, DelSubgroupForm, GetGroup, GetUser, RequestForm, RespondForm, PaymentForm, GroupForm, SubgroupForm
 from ..auth import has_role
 
 
@@ -283,3 +283,21 @@ def delete_subgroup():
         return redirect(url_for('qa.home'))
     return render_template('delsub.html', form=form)
     abort(403)
+
+
+@qa_blueprint.route('/getuser/', methods=('GET', 'POST'))
+def getuser():
+    form = GetUser()
+    if form.validate_on_submit():
+        username  = form.username.data
+        return redirect(url_for('qa.requests_by_user', username=username))
+    return render_template('getuser.html', form=form)
+
+
+@qa_blueprint.route('/getgroup/', methods=('GET', 'POST'))
+def getgroup():
+    form = GetGroup()
+    if form.validate_on_submit():
+        title = form.title.data
+        return redirect(url_for('qa.requests_by_group', group_title=title))
+    return render_template('getgroup.html', form=form)
