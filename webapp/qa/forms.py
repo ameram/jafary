@@ -84,5 +84,6 @@ class RequestForm(Form):
 
     def __init__(self):
         super(RequestForm, self).__init__()
-        self.group.choices = [(c.id, c.title) for c in Group.query.all()]
-        self.subgroup.choices = [(c.id, c.title) for c in Subgroup.query.all()]
+        self.group.choices = [(c.id, f'{c.id}. {c.title}') for c in Group.query.all()]
+        self.subgroup.choices = [(c.id, f'{c.group_foreignkey}. {c.title}') for c in Subgroup.query.order_by(Subgroup.group_foreignkey).all()]
+        # self.subgroup.choices = [(c.id, f'{c.group_foreignkey}. {c.title}') for c in Subgroup.query.filter_by(group_foreignkey=1).all()]
